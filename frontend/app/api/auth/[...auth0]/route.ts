@@ -11,15 +11,9 @@ export const GET = handleAuth({
       prompt: 'select_account'
     }
   }),
-  callback: handleCallback({
-    afterCallback: async (
-      req: Request,
-      session: any,
-      state: Record<string, unknown>
-    ) => {
-      // Ensure user profile information is included in the session
-      return session;
-    }
+  // In the App Router, pass a function directly to handleCallback
+  callback: handleCallback(async (_req, session, _state) => {
+    return session;
   }),
   logout: handleLogout({
     returnTo: '/',
