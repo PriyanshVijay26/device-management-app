@@ -63,7 +63,7 @@ export default function Dashboard() {
         sub: profile.sub || user?.sub || '',
         name: profile.name || user?.name || user?.nickname || '',
         email: profile.email || user?.email || '',
-        phone_number: profile.phone_number || user?.phone_number || '',
+        phone_number: profile.phone_number || (typeof user?.phone_number === 'string' ? user.phone_number : '') || '',
         picture: profile.picture || user?.picture || ''
       }
       
