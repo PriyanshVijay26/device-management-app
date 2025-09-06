@@ -1,0 +1,49 @@
+[build]
+  # Build command
+  command = "npm run build"
+  
+  # Output directory
+  publish = ".next"
+  
+  # Base directory (since we're deploying from frontend folder)
+  base = "frontend"
+
+[build.environment]
+  # Node.js version
+  NODE_VERSION = "18"
+  
+  # Next.js specific
+  NEXT_TELEMETRY_DISABLED = "1"
+
+# Redirects for Next.js routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  conditions = {Role = ["admin"]}
+
+# Handle Next.js API routes and pages
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "/404.html"
+  status = 404
+
+# Security headers
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Cache static assets
+[[headers]]
+  for = "/_next/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
