@@ -12,7 +12,11 @@ export const GET = handleAuth({
     }
   }),
   callback: handleCallback({
-    afterCallback: async (req, session, state) => {
+    afterCallback: async (
+      req: Request,
+      session: any,
+      state: Record<string, unknown>
+    ) => {
       // Ensure user profile information is included in the session
       return session;
     }
