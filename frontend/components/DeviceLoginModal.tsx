@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { Dialog } from '@headlessui/react'
 import { XMarkIcon, DevicePhoneMobileIcon } from '@heroicons/react/24/outline'
-import { Device } from '../lib/api'
+import { Device } from '@/lib/api'
 import toast from 'react-hot-toast'
 
 interface DeviceLoginModalProps { 
