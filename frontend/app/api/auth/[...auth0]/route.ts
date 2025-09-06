@@ -6,12 +6,9 @@ export const GET = handleAuth({
     // Request an access token for our API so the backend accepts it
     authorizationParams: {
       audience: process.env.AUTH0_AUDIENCE,
-      scope: 'openid profile email phone',
-      // Force account selection - user can choose different email or confirm current one
-      prompt: 'select_account'
+      scope: 'openid profile email phone'
     }
   }),
-  // Use default callback without custom typing to satisfy strict builds
   callback: handleCallback(),
   logout: handleLogout({
     returnTo: '/',
