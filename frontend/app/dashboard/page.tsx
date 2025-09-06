@@ -53,7 +53,7 @@ export default function Dashboard() {
           sub: user?.sub || '',
           name: user?.name || user?.nickname || '',
           email: user?.email || '',
-          phone_number: user?.phone_number || '',
+          phone_number: (typeof user?.phone_number === 'string' ? user.phone_number : '') || '',
           picture: user?.picture || ''
         }
       }
