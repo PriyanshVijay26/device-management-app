@@ -3,10 +3,10 @@
 import { useUser } from '@auth0/nextjs-auth0/client'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { apiClient, UserProfile, Device } from '@/lib/api'
-import { DeviceManager } from '@/lib/deviceManager'
-import DeviceLoginModal from '@/components/DeviceLoginModal'
-import LoadingSpinner from '@/components/LoadingSpinner'
+import { apiClient, UserProfile, Device } from '../../lib/api'
+import { DeviceManager } from '../../lib/deviceManager'
+import DeviceLoginModal from '../../components/DeviceLoginModal'
+import LoadingSpinner from '../../components/LoadingSpinner'
 import toast from 'react-hot-toast'
 import {
   UserIcon,
