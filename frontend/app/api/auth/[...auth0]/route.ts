@@ -11,10 +11,8 @@ export const GET = handleAuth({
       prompt: 'select_account'
     }
   }),
-  // In the App Router, pass a function directly to handleCallback
-  callback: handleCallback(async (_req, session, _state) => {
-    return session;
-  }),
+  // Use default callback without custom typing to satisfy strict builds
+  callback: handleCallback(),
   logout: handleLogout({
     returnTo: '/',
     logoutParams: {
