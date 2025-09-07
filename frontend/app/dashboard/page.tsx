@@ -28,6 +28,16 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [deviceManager] = useState(() => DeviceManager.getInstance())
 
+  // Clean up URL after OAuth redirect
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href)
+      if (url.searchParams.has('code') || url.searchParams.has('state')) {
+        window.history.replaceState({}, document.title, '/dashboard')
+      }
+    }
+  }, [])
+
   useEffect(() => {
     if (!isLoading && !user) {
       router.push('/')
@@ -159,14 +169,39 @@ export default function Dashboard() {
   }
 
   const formatDate = (dateString: string) => {
-    // Format consistently across the app using user's local timezone
-    return new Date(dateString).toLocaleString('en-US', {
-      year: 'numeric',
-      month: 'numeric',
+    const date = new Date(dateString)
+    const now = new Date()
+    const diffInHours = Math.abs(now.getTime() - date.getTime()) / (1000 * 60 * 60)
+    
+    // If within last 24 hours, show time only
+    if (diffInHours < 24) {
+      return date.toLocaleString('en-IN', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true,
+        timeZone: 'Asia/Kolkata'
+      })
+    }
+    
+    // If within last week, show day and time
+    if (diffInHours < 168) { // 7 days * 24 hours
+      return date.toLocaleString('en-IN', {
+        weekday: 'short',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true,
+        timeZone: 'Asia/Kolkata'
+      })
+    }
+    
+    // Otherwise show full date and time
+    return date.toLocaleString('en-IN', {
+      month: 'short',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
-      hour12: true
+      hour12: true,
+      timeZone: 'Asia/Kolkata'
     })
   }
 
