@@ -1,9 +1,9 @@
 [build]
-  # Build command
+  # Build command for Next.js static export
   command = "npm run build"
   
-  # Output directory
-  publish = ".next"
+  # Output directory for static export
+  publish = "out"
   
   # Base directory (since we're deploying from frontend folder)
   base = "frontend"
@@ -15,23 +15,11 @@
   # Next.js specific
   NEXT_TELEMETRY_DISABLED = "1"
 
-# Redirects for Next.js routing
+# Handle client-side routing for SPA
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-  conditions = {Role = ["admin"]}
-
-# Handle Next.js API routes and pages
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/:splat"
-  status = 200
-
-[[redirects]]
-  from = "/*"
-  to = "/404.html"
-  status = 404
 
 # Security headers
 [[headers]]
