@@ -40,6 +40,8 @@ export class DeviceManager {
       const userAgent = navigator.userAgent;
       const platform = navigator.platform;
       const language = navigator.language;
+      const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+      const tzLabel = timeZone === 'Asia/Kolkata' ? 'IST' : timeZone;
       
       // Extract browser info
       let browser = 'Unknown';
@@ -56,7 +58,8 @@ export class DeviceManager {
       else if (userAgent.includes('Android')) os = 'Android';
       else if (userAgent.includes('iPhone') || userAgent.includes('iPad')) os = 'iOS';
       
-      return `${browser} on ${os} (${language})`;
+      // Show timezone label (e.g., IST) instead of browser locale
+      return `${browser} on ${os} (${tzLabel})`;
     }
     return 'Unknown Device';
   }
