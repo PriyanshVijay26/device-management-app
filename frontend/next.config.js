@@ -2,12 +2,6 @@
 const path = require('path')
 
 const nextConfig = {
-  // Enable static export for Netlify deployment
-  output: 'export',
-  trailingSlash: true,
-  images: {
-    unoptimized: true
-  },
   env: {
     AUTH0_SECRET: process.env.AUTH0_SECRET,
     AUTH0_BASE_URL: process.env.AUTH0_BASE_URL,
