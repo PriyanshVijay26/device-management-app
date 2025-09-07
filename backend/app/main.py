@@ -7,6 +7,7 @@ import json
 import httpx
 import os
 from dotenv import load_dotenv
+from datetime import timezone
 
 from app.database import get_db
 from app.auth import get_current_user
@@ -166,13 +167,14 @@ async def get_active_devices(
         device_manager = DeviceManager(db)
         devices = device_manager.get_active_devices(user_id)
         
+        # Ensure timestamps are explicitly UTC so clients can render in local TZ
         return {
             "devices": [
                 {
                     "device_id": device.device_id,
                     "device_info": device.device_info,
-                    "login_time": device.login_time.isoformat(),
-                    "last_activity": device.last_activity.isoformat()
+                    "login_time": device.login_time.replace(tzinfo=timezone.utc).isoformat(),
+                    "last_activity": device.last_activity.replace(tzinfo=timezone.utc).isoformat()
                 } for device in devices
             ]
         }
