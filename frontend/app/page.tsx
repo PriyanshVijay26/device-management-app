@@ -34,9 +34,9 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen gradient-bg">
+    <div className="min-h-screen gradient-bg relative overflow-x-hidden">
       {/* Navigation */}
-      <nav className="relative z-10 p-6">
+      <nav className="relative z-10 p-4 sm:p-6">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div className="text-white text-2xl font-bold">
             DeviceGuard
@@ -49,10 +49,10 @@ export default function Home() {
 
       {/* Hero Section */}
       <div className="relative z-10 max-w-7xl mx-auto px-6 py-20">
-        <div className="text-center">
-          <h1 className="text-6xl font-bold text-white mb-6">
+        <div className="text-center px-4">
+          <h1 className="text-4xl sm:text-6xl font-bold text-white mb-6 leading-[1.15] tracking-tight">
             Secure Device
-            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-purple-200">
+            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-purple-200 pb-1">
               Management
             </span>
           </h1>
@@ -60,11 +60,11 @@ export default function Home() {
             Control concurrent device access with precision. Manage N-device login limits, 
             force logout capabilities, and real-time session monitoring.
           </p>
-          <div className="space-x-4">
-            <Link href="/api/auth/login" className="btn-secondary">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link href="/api/auth/login" className="btn-secondary w-full sm:w-auto">
               Get Started
             </Link>
-            <button className="btn-secondary border-white text-white hover:bg-white hover:text-primary-600">
+            <button className="btn-secondary border-white text-white hover:bg-white hover:text-primary-600 w-full sm:w-auto">
               Learn More
             </button>
           </div>
