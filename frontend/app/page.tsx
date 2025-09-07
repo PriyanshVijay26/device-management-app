@@ -61,7 +61,7 @@ export default function Home() {
             force logout capabilities, and real-time session monitoring.
           </p>
           <div className="space-x-4">
-            <Link href="/api/auth/login" className="btn-primary bg-white text-primary-600 hover:bg-gray-100">
+            <Link href="/api/auth/login" className="btn-secondary">
               Get Started
             </Link>
             <button className="btn-secondary border-white text-white hover:bg-white hover:text-primary-600">
