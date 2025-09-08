@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from app.database import DeviceSession
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import List, Optional
 import uuid
 import os
@@ -68,8 +68,9 @@ class DeviceManager:
                     {
                         "device_id": device.device_id,
                         "device_info": device.device_info,
-                        "login_time": device.login_time.isoformat(),
-                        "last_activity": device.last_activity.isoformat()
+                        # Explicitly tag UTC so clients can safely render in local TZ (IST)
+                        "login_time": device.login_time.replace(tzinfo=timezone.utc).isoformat(),
+                        "last_activity": device.last_activity.replace(tzinfo=timezone.utc).isoformat(),
                     } for device in active_devices
                 ]
             }
@@ -95,34 +96,31 @@ class DeviceManager:
         }
     
     def force_logout_device(self, user_id: str, target_device_id: str, current_device_id: str) -> dict:
-        """Force logout a specific device"""
-        # Check if current device belongs to user
-        current_device = self.db.query(DeviceSession).filter(
-            DeviceSession.device_id == current_device_id,
-            DeviceSession.user_id == user_id,
-            DeviceSession.is_active == "true"
-        ).first()
-        
-        if not current_device:
-            return {"success": False, "message": "Unauthorized"}
-        
-        # Find and logout target device
+        """Force logout a specific device.
+
+        Authorization: relies on the caller's JWT (user_id). We intentionally
+        do NOT require the "current_device_id" to already be active in the DB
+        because this endpoint is also used when the user hits the device limit
+        and is not yet logged in on the current device.
+        """
+        # Verify the target device belongs to the same user and is active
         target_device = self.db.query(DeviceSession).filter(
             DeviceSession.device_id == target_device_id,
             DeviceSession.user_id == user_id,
-            DeviceSession.is_active == "true"
+            DeviceSession.is_active == "true",
         ).first()
-        
+
         if not target_device:
-            return {"success": False, "message": "Target device not found"}
-        
+            return {"success": False, "message": "Target device not found or already logged out"}
+
+        # Deactivate target device
         target_device.is_active = "false"
         self.db.commit()
-        
+
         return {
             "success": True,
             "message": "Device logged out successfully",
-            "logged_out_device": target_device_id
+            "logged_out_device": target_device_id,
         }
     
     def logout_device(self, device_id: str) -> dict:

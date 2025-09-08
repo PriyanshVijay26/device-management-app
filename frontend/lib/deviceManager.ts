@@ -40,8 +40,8 @@ export class DeviceManager {
       const userAgent = navigator.userAgent;
       const platform = navigator.platform;
       const language = navigator.language;
-      const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
-      const tzLabel = timeZone === 'Asia/Kolkata' ? 'IST' : timeZone;
+  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+  const tzLabel = (timeZone === 'Asia/Kolkata' || timeZone === 'Asia/Calcutta') ? 'IST' : timeZone;
       
       // Extract browser info
       let browser = 'Unknown';

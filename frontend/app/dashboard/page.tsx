@@ -136,7 +136,10 @@ export default function Dashboard() {
   const handleForceLogoutDevice = async (targetDeviceId: string) => {
     try {
       const currentDeviceId = deviceManager.getDeviceId()
-      await apiClient.forceLogoutDevice(targetDeviceId, currentDeviceId)
+      const result = await apiClient.forceLogoutDevice(targetDeviceId, currentDeviceId)
+      if (!result?.success) {
+        throw new Error(result?.message || 'Force logout failed')
+      }
       
       // Now try to login the current device since we freed up a slot
       const deviceInfo = deviceManager.getDeviceInfo()
@@ -146,6 +149,7 @@ export default function Dashboard() {
         // Login successful, refresh devices list and close modal
         await loadActiveDevices()
         setShowDeviceModal(false)
+        toast.success('Device logged out. Logged in on this device.')
         
         // Connect WebSocket for the current device
         const tokenResponse = await fetch('/api/auth/token')
@@ -157,6 +161,8 @@ export default function Dashboard() {
       }
     } catch (error) {
       console.error('Error forcing logout:', error)
+      const message = (error as any)?.response?.data?.detail || (error as Error)?.message || 'Failed to force logout'
+      toast.error(String(message))
       throw error
     }
   }
@@ -178,41 +184,26 @@ export default function Dashboard() {
     }
   }
 
+  const formatWithIndiaTZ = (date: Date, opts: Intl.DateTimeFormatOptions) => {
+    try {
+      return date.toLocaleString('en-IN', { ...opts, timeZone: 'Asia/Kolkata' })
+    } catch {
+      return date.toLocaleString('en-IN', { ...opts, timeZone: 'Asia/Calcutta' as any })
+    }
+  }
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
     const now = new Date()
     const diffInHours = Math.abs(now.getTime() - date.getTime()) / (1000 * 60 * 60)
-    
-    // If within last 24 hours, show time only
+
     if (diffInHours < 24) {
-      return date.toLocaleString('en-IN', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true,
-        timeZone: 'Asia/Kolkata'
-      })
+      return `${formatWithIndiaTZ(date, { hour: '2-digit', minute: '2-digit', hour12: true })} IST`
     }
-    
-    // If within last week, show day and time
-    if (diffInHours < 168) { // 7 days * 24 hours
-      return date.toLocaleString('en-IN', {
-        weekday: 'short',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true,
-        timeZone: 'Asia/Kolkata'
-      })
+    if (diffInHours < 168) {
+      return `${formatWithIndiaTZ(date, { weekday: 'short', hour: '2-digit', minute: '2-digit', hour12: true })} IST`
     }
-    
-    // Otherwise show full date and time
-    return date.toLocaleString('en-IN', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true,
-      timeZone: 'Asia/Kolkata'
-    })
+    return `${formatWithIndiaTZ(date, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })} IST`
   }
 
   if (isLoading || loading) {

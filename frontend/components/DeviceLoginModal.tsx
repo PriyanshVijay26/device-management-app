@@ -27,12 +27,22 @@ export default function DeviceLoginModal({
     setLoading(deviceId)
     try {
       await onForceLogout(deviceId)
-      toast.success('Device logged out successfully. You are now logged in on this device.')
+      // Success feedback will be handled by dashboard after retrying login
       onClose()
     } catch (error) {
-      toast.error('Failed to logout device')
+      const message = (error as any)?.response?.data?.detail || (error as Error)?.message || 'Failed to logout device'
+      toast.error(String(message))
     } finally {
       setLoading(null)
+    }
+  }
+
+  const formatWithIndiaTZ = (date: Date, opts: Intl.DateTimeFormatOptions) => {
+    try {
+      return date.toLocaleString('en-IN', { ...opts, timeZone: 'Asia/Kolkata' })
+    } catch {
+      // Fallback for environments that still use the legacy alias
+      return date.toLocaleString('en-IN', { ...opts, timeZone: 'Asia/Calcutta' as any })
     }
   }
 
@@ -41,37 +51,19 @@ export default function DeviceLoginModal({
     const date = new Date(dateString)
     const now = new Date()
     const diffInHours = Math.abs(now.getTime() - date.getTime()) / (1000 * 60 * 60)
-    
+
     // If within last 24 hours, show time only
     if (diffInHours < 24) {
-      return date.toLocaleString('en-IN', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true,
-        timeZone: 'Asia/Kolkata'
-      })
+      return `${formatWithIndiaTZ(date, { hour: '2-digit', minute: '2-digit', hour12: true })} IST`
     }
-    
+
     // If within last week, show day and time
-    if (diffInHours < 168) { // 7 days * 24 hours
-      return date.toLocaleString('en-IN', {
-        weekday: 'short',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true,
-        timeZone: 'Asia/Kolkata'
-      })
+    if (diffInHours < 168) {
+      return `${formatWithIndiaTZ(date, { weekday: 'short', hour: '2-digit', minute: '2-digit', hour12: true })} IST`
     }
-    
+
     // Otherwise show full date and time
-    return date.toLocaleString('en-IN', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true,
-      timeZone: 'Asia/Kolkata'
-    })
+    return `${formatWithIndiaTZ(date, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })} IST`
   }
 
   const getTimeSince = (dateString: string) => {
