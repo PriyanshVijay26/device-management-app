@@ -138,13 +138,23 @@ export default function Dashboard() {
       const currentDeviceId = deviceManager.getDeviceId()
       await apiClient.forceLogoutDevice(targetDeviceId, currentDeviceId)
       
-      // Refresh devices list and allow current login
-      await loadActiveDevices()
-      setShowDeviceModal(false)
+      // Now try to login the current device since we freed up a slot
+      const deviceInfo = deviceManager.getDeviceInfo()
+      const loginResult = await apiClient.loginDevice(deviceInfo, currentDeviceId)
       
-      // Connect WebSocket
-      const accessToken = await fetch('/api/auth/token').then(res => res.json())
-      deviceManager.connectWebSocket(accessToken.accessToken, handleForceLogout)
+      if (loginResult.success) {
+        // Login successful, refresh devices list and close modal
+        await loadActiveDevices()
+        setShowDeviceModal(false)
+        
+        // Connect WebSocket for the current device
+        const tokenResponse = await fetch('/api/auth/token')
+        const tokenData = await tokenResponse.json()
+        deviceManager.connectWebSocket(tokenData.accessToken, handleForceLogout)
+      } else {
+        // If login still fails for some reason, show error
+        throw new Error(loginResult.message || 'Failed to login after force logout')
+      }
     } catch (error) {
       console.error('Error forcing logout:', error)
       throw error

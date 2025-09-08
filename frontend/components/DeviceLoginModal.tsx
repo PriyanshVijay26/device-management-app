@@ -27,7 +27,7 @@ export default function DeviceLoginModal({
     setLoading(deviceId)
     try {
       await onForceLogout(deviceId)
-      toast.success('Device logged out successfully')
+      toast.success('Device logged out successfully. You are now logged in on this device.')
       onClose()
     } catch (error) {
       toast.error('Failed to logout device')
@@ -37,19 +37,45 @@ export default function DeviceLoginModal({
   }
 
   const formatDate = (dateString: string) => {
-    // Format consistently with dashboard using user's local timezone
-    return new Date(dateString).toLocaleString('en-US', {
-      year: 'numeric',
-      month: 'numeric',
+    // Format consistently with dashboard using Indian timezone
+    const date = new Date(dateString)
+    const now = new Date()
+    const diffInHours = Math.abs(now.getTime() - date.getTime()) / (1000 * 60 * 60)
+    
+    // If within last 24 hours, show time only
+    if (diffInHours < 24) {
+      return date.toLocaleString('en-IN', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true,
+        timeZone: 'Asia/Kolkata'
+      })
+    }
+    
+    // If within last week, show day and time
+    if (diffInHours < 168) { // 7 days * 24 hours
+      return date.toLocaleString('en-IN', {
+        weekday: 'short',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true,
+        timeZone: 'Asia/Kolkata'
+      })
+    }
+    
+    // Otherwise show full date and time
+    return date.toLocaleString('en-IN', {
+      month: 'short',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
-      hour12: true
+      hour12: true,
+      timeZone: 'Asia/Kolkata'
     })
   }
 
   const getTimeSince = (dateString: string) => {
-    // Use the same timezone as the main dashboard for consistency
+    // Use Indian timezone for consistency with dashboard
     const now = new Date()
     const past = new Date(dateString)
     const diffMs = now.getTime() - past.getTime()
