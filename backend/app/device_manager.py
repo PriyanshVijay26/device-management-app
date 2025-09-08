@@ -32,6 +32,10 @@ class DeviceManager:
         if not device_id:
             device_id = self.generate_device_id()
         
+        # Normalize device info label for India timezone
+        if isinstance(device_info, str):
+            device_info = device_info.replace("(Asia/Kolkata)", "(IST)").replace("(Asia/Calcutta)", "(IST)")
+
         active_devices = self.get_active_devices(user_id)
         
         # Check if device already exists (active or inactive)
@@ -40,22 +44,42 @@ class DeviceManager:
         ).first()
         
         if existing_device:
-            # Reactivate existing device
-            existing_device.user_id = user_id  # Update user_id in case it changed
+            # If the device exists but is currently inactive, enforce the limit
+            if existing_device.is_active != "true":
+                if len(active_devices) >= MAX_DEVICES:
+                    # Do NOT reactivate; return the list for modal selection
+                    return {
+                        "success": False,
+                        "device_id": device_id,
+                        "message": f"Maximum {MAX_DEVICES} devices allowed",
+                        "active_devices": len(active_devices),
+                        "devices": [
+                            {
+                                "device_id": d.device_id,
+                                "device_info": d.device_info,
+                                "login_time": d.login_time.replace(tzinfo=timezone.utc).isoformat(),
+                                "last_activity": d.last_activity.replace(tzinfo=timezone.utc).isoformat(),
+                            }
+                            for d in active_devices
+                        ],
+                    }
+
+            # Reactivate or refresh existing device session
+            existing_device.user_id = user_id  # Ensure ownership
             existing_device.device_info = device_info  # Update device info
             existing_device.login_time = datetime.utcnow()  # Update login time
             existing_device.last_activity = datetime.utcnow()
-            existing_device.is_active = "true"  # Reactivate
+            existing_device.is_active = "true"
             self.db.commit()
-            
-            # Recalculate active devices after reactivation
+
+            # Recalculate active devices after (re)activation
             active_devices = self.get_active_devices(user_id)
-            
+
             return {
                 "success": True,
                 "device_id": device_id,
                 "message": "Device reactivated successfully",
-                "active_devices": len(active_devices)
+                "active_devices": len(active_devices),
             }
         
         if len(active_devices) >= MAX_DEVICES:
